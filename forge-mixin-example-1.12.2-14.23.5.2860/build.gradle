@@ -1,0 +1,90 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://repo.spongepowered.org/maven' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'eclipse'
+
+version = mod_version
+group = mod_group
+archivesBaseName = mod_id
+
+sourceCompatibility = targetCompatibility = '1.8'
+
+minecraft {
+    mappings channel: mappings_channel, version: mappings_version
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
+            jvmArgs '-Xmx4G', '-Xms2G'
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
+            jvmArgs '-Xmx4G', '-Xms2G'
+        }
+    }
+}
+
+repositories {
+    maven { url = 'https://repo.spongepowered.org/maven' }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2860"
+
+    // Dependência do mod original NarutoMod (nerfado)
+    implementation files("libs/NarutoMod-1.12.2-spring.jar")
+
+    // Dependência principal do Mixin
+    implementation 'org.spongepowered:mixin:0.8.3-SNAPSHOT'
+    annotationProcessor 'org.spongepowered:mixin:0.8.3-SNAPSHOT:processor'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+}
+
+mixin {
+    add sourceSets.main, "mixins.example.refmap.json"
+    config "mixins.example.json"
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    from {
+        sourceSets.main.output
+    }
+    manifest.attributes(
+            'MixinConfigs': 'mixins.example.json',
+            'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
+    )
+}
+
+jar.finalizedBy('reobfJar')

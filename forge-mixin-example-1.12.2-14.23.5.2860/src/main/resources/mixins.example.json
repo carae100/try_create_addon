@@ -1,0 +1,12 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "compatibilityLevel": "JAVA_8",
+    "package": "com.seuaddon.mixin",
+    "refmap": "mixins.example.refmap.json",
+    "mixins": [
+        "EntityGedoStatueMixin"
+    ],
+    "client": [],
+    "server": []
+}
